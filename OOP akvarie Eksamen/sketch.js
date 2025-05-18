@@ -50,8 +50,8 @@ class Vector {
   }
   div(n){
     return new Vector(
-      this.startX / n,
-      this.startY / n,
+      this.startX ,
+      this.startY ,
       this.compX / n,
       this.compY / n
     );
@@ -102,6 +102,12 @@ class Fish {
   get fishHeight() {
     return this.#fishHeight;
   }
+  set vel(newVel) {
+    this.#vel = newVel;
+  }
+  set pos(newPos) {
+    this.#pos = newPos;
+  }
 
      show(){
        fill(this.#color)
@@ -131,8 +137,8 @@ class PreyFish extends Fish {
     let vel = new Vector(
       0,
       0,
-      random(-width / 300, width / 300),
-      random(-height / 300, height / 300)
+      100,
+      100
     );
     super(pos, vel, "orange", 40, 20);
   }
@@ -166,38 +172,64 @@ class PreyFish extends Fish {
   
     for (let other of fishArray) {
       if (other !== this) {
-        let diff = new Vector(this.pos, other.pos);
-        let d = diff.length();
+        let diff = new Vector(
+          0,
+          0,
+          this.pos.startX - other.pos.startX,
+          this.pos.startY - other.pos.startY
+        );
+        let d = diff.length;
   
         if (d < desiredSeparation && d > 0) {
-          diff.normalize();
-          steer.add(diff);
+          diff = diff.normalize();
+          steer = steer.add(diff);
         }
       }
     }
   
     return steer;
   }
-  allignemt(fishArray){
+  alignment(fishArray){
     let pVel = new Vector(0,0,0,0);
     let total = 0;
     let chgVelocity = 10;
     for(let other of fishArray){
       if(other !== this){
         pVel = pVel.add(other.vel);
+        total++;
       }
     }
 
     if (total > 0) {
-      pVel.div(total); 
-      let steer = pVel.sub(fish.vel);
-      steer.div(chgVelocity);
+      pVel = pVel.div(total); 
+      let steer = pVel.subtract(this.vel);
+      steer = steer.div(chgVelocity);
       return steer;
     } else {
       return new Vector(0,0,0,0);
     }
   }
- 
+  update(fishArray) {
+    // Get steering forces
+    let coh = this.cohesion(fishArray);
+    let sep = this.separation(fishArray);
+    let ali = this.alignment(fishArray);
+  
+    // Weight the forces
+    let steer = coh.add(sep).add(ali);
+  
+    // Add to velocity
+    this.vel = this.vel.add(steer);
+  
+    // Limit velocity (optional but helps)
+    let maxSpeed = 5;
+    if (this.vel.length > maxSpeed) {
+      this.vel = this.vel.normalize().div(1 / maxSpeed);
+    }
+  
+    // Update position
+    this.pos = this.pos.add(this.vel);
+  }
 }
 
 let fishArray = [];
@@ -214,7 +246,7 @@ function draw() {
   
   for(i = 0; i < fishArray.length; i++){
     let fish = fishArray[i];
-    fish.update();
+    fish.update(fishArray);
     fish.show();
   } 
 }
