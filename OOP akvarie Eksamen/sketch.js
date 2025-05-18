@@ -27,6 +27,10 @@ class Vector {
     return this.#compY;
   }
 
+  get length(){
+    return Math.sqrt(this.#compX**2 + this.#compY**2)
+  }
+
   add(other) {
     return new Vector(
       this.startX + other.startX,
@@ -42,6 +46,24 @@ class Vector {
       this.startY - other.startY,
       this.compX - other.compX,
       this.compY - other.compY
+    );
+  }
+  div(n){
+    return new Vector(
+      this.startX / n,
+      this.startY / n,
+      this.compX / n,
+      this.compY / n
+    );
+  }
+  normalize() {
+    let len = this.length;
+    if (len === 0) return new Vector(this.startX, this.startY, 0, 0);
+    return new Vector(
+      this.startX,
+      this.startY,
+      this.compX / len,
+      this.compY / len
     );
   }
 }
@@ -114,6 +136,68 @@ class PreyFish extends Fish {
     );
     super(pos, vel, "orange", 40, 20);
   }
+
+  cohesion(fishArray) {
+    let pCenter = new Vector(0, 0, 0, 0);
+    let total = 0;
+  
+    for (let other of fishArray) {
+      if (other !== this) {
+        pCenter = pCenter.add(other.pos);
+        total++;
+      }
+    }
+  
+    if (total > 0) {
+      pCenter = new Vector(pCenter.startX / total, pCenter.startY / total, 0, 0);
+  
+      let steerX = (pCenter.startX - this.pos.startX) / 100;
+      let steerY = (pCenter.startY - this.pos.startY) / 100;
+  
+      return new Vector(0, 0, steerX, steerY);
+    }
+  
+    return new Vector(0, 0, 0, 0);
+  }
+
+  separation(fishArray) {
+    let steer = new Vector(0, 0, 0, 0);
+    let desiredSeparation = 25;
+  
+    for (let other of fishArray) {
+      if (other !== this) {
+        let diff = new Vector(this.pos, other.pos);
+        let d = diff.length();
+  
+        if (d < desiredSeparation && d > 0) {
+          diff.normalize();
+          steer.add(diff);
+        }
+      }
+    }
+  
+    return steer;
+  }
+  allignemt(fishArray){
+    let pVel = new Vector(0,0,0,0);
+    let total = 0;
+    let chgVelocity = 10;
+    for(let other of fishArray){
+      if(other !== this){
+        pVel = pVel.add(other.vel);
+      }
+    }
+
+    if (total > 0) {
+      pVel.div(total); 
+      let steer = pVel.sub(fish.vel);
+      steer.div(chgVelocity);
+      return steer;
+    } else {
+      return new Vector(0,0,0,0);
+    }
+  }
+ 
 }
 
 let fishArray = [];
