@@ -101,10 +101,10 @@ class Fish {
 class PreyFish extends Fish {
   constructor() {
     let pos = new Vector(
-      width / 2,
-      height / 2,
-      random(-width / 100, width / 100),
-      random(-height / 100, height / 100)
+      random(40,width-40),
+      random(40,height-40),
+      random(40,width-40),
+      random(40,height-40)
     );
     let vel = new Vector(
       0,
@@ -112,20 +112,25 @@ class PreyFish extends Fish {
       random(-width / 300, width / 300),
       random(-height / 300, height / 300)
     );
-    super(pos, vel, "green", 40, 20);
+    super(pos, vel, "orange", 40, 20);
   }
 }
 
-
-let fish;
+let fishArray = [];
 
 function setup() {
-  createCanvas(400, 400);
-  fish = new PreyFish();
+  createCanvas(windowWidth, windowHeight);
+  for(let i = 0;i < 50; i++){
+    fishArray.push(new PreyFish());
+  }
 }
 
 function draw() {
-  background(220);
-  fish.update();
-  fish.show();
+  background(0,0,220);
+  
+  for(i = 0; i < fishArray.length; i++){
+    let fish = fishArray[i];
+    fish.update();
+    fish.show();
+  } 
 }
