@@ -25,6 +25,9 @@ class Vector {
   length() {
     return Math.sqrt(this.x ** 2 + this.y ** 2);
   }
+  multi(n){
+    return new Vector(this.x * n,this.y * n);
+  }
 }
 
 
@@ -90,13 +93,14 @@ class Fish {
 class PreyFish extends Fish {
   constructor() {
     let pos = new Vector(random(40, width - 40), random(40, height - 40));
-    let vel = new Vector(random(-2, 2), random(-2, 2));
-    super(pos, vel, "orange", 40, 20);
+    let vel = new Vector(0,0);
+    super(pos, vel, "orange", 20, 10);
   }
 
   cohesion(fishArray) {
     let pCenter = new Vector(0, 0);
     let total = 0;
+    let desiredCohesion = 100;
 
     for (let other of fishArray) {
       if (other !== this) {
@@ -108,8 +112,8 @@ class PreyFish extends Fish {
     if (total > 0) {
       pCenter = pCenter.div(total);
       let steer = new Vector(
-        (pCenter.x - this.pos.x) / 100,
-        (pCenter.y - this.pos.y) / 100
+        (pCenter.x - this.pos.x) / desiredCohesion,
+        (pCenter.y - this.pos.y) / desiredCohesion
       );
       return steer;
     }
@@ -119,7 +123,7 @@ class PreyFish extends Fish {
 
   separation(fishArray) {
     let steer = new Vector(0, 0);
-    let desiredSeparation = 25;
+    let desiredSeparation = 25 ;
 
     for (let other of fishArray) {
       if (other !== this) {
@@ -138,7 +142,7 @@ class PreyFish extends Fish {
   alignment(fishArray) {
     let avgVel = new Vector(0, 0);
     let total = 0;
-    let chgVelocity = 10;
+    let desiredAlignment = 50  ; //chgVelocity
 
     for (let other of fishArray) {
       if (other !== this) {
@@ -149,17 +153,25 @@ class PreyFish extends Fish {
 
     if (total > 0) {
       avgVel = avgVel.div(total);
-      let steer = avgVel.subtract(this.vel).div(chgVelocity);
+      let steer = avgVel.subtract(this.vel).div(desiredAlignment);
       return steer;
     }
 
     return new Vector(0, 0);
   }
+  boundaryCheck(){
+    if ((this.pos.x > width-30) || (this.pos.x < 30)) {
+        this.vel.x = this.vel.x * -1;
+    }
+    if ((this.pos.y > height-30) || (this.pos.y < 30)) {
+        this.vel.y = this.vel.y * -1;
+    }
+}
 
   update(fishArray) {
-    let coh = this.cohesion(fishArray);
-    let sep = this.separation(fishArray);
-    let ali = this.alignment(fishArray);
+    let coh = this.cohesion(fishArray).multi(1);
+    let sep = this.separation(fishArray).multi(1);
+    let ali = this.alignment(fishArray).multi(1);
 
     let steer = coh.add(sep).add(ali);
     this.vel = this.vel.add(steer);
@@ -170,9 +182,9 @@ class PreyFish extends Fish {
     }
 
     this.pos = this.pos.add(this.vel);
+    this.boundaryCheck()
   }
 }
-
 
 let fishArray = [];
 
