@@ -6,7 +6,7 @@ class Vector {
     this.#y = y;
   }
 
-    get x () {
+  get x () {
     return this.#x;
   }
   get y() {
@@ -75,11 +75,11 @@ class Fish {
   }
 
   set pos(newPos) {
-    this.#pos = new Vector(newPos.x, newPos.y); // Sikrer type
+    this.#pos = new Vector(newPos.x, newPos.y); 
   }
 
   set vel(newVel) {
-    this.#vel = new Vector(newVel.x, newVel.y); // Sikrer type
+    this.#vel = new Vector(newVel.x, newVel.y); 
   }
 
   show() {
@@ -149,7 +149,7 @@ class PreyFish extends Fish {
   alignment(fishArray) {
     let avgVel = new Vector(0, 0);
     let total = 0;
-    let desiredAlignment = 50  ; //chgVelocity
+    let desiredAlignment = 50;
 
     for (let other of fishArray) {
       if (other !== this) {
@@ -166,14 +166,20 @@ class PreyFish extends Fish {
 
     return new Vector(0, 0);
   }
-  boundaryCheck(){
-    if ((this.pos.x > width-30) || (this.pos.x < 30)) {
-        this.vel.x = this.vel.x * -1;
-    }
-    if ((this.pos.y > height-30) || (this.pos.y < 30)) {
-        this.vel.y = this.vel.y * -1;
-    }
-}
+  
+  boundaryCheck() {
+  let vx = this.vel.x;
+  let vy = this.vel.y;
+
+  if ((this.pos.x > width - 30) || (this.pos.x < 30)) {
+    vx = vx * -1;
+  }
+  if ((this.pos.y > height - 30) || (this.pos.y < 30)) {
+    vy = vy * -1;
+  }
+
+  this.vel = new Vector(vx, vy);
+ }
 
   update(fishArray) {
     let coh = this.cohesion(fishArray).multi(1);
