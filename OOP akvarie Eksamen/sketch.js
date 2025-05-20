@@ -30,7 +30,6 @@ class Vector {
   }
 }
 
-
 class Fish {
   #pos;
   #vel;
@@ -39,8 +38,8 @@ class Fish {
   #fishHeight;
 
   constructor(pos, vel, color, fishWidth, fishHeight) {
-    this.#pos = pos;
-    this.#vel = vel;
+    this.#pos = new Vector(pos.x, pos.y);
+    this.#vel = new Vector(vel.x, vel.y); 
     this.#color = color;
     this.#fishWidth = fishWidth;
     this.#fishHeight = fishHeight;
@@ -66,12 +65,12 @@ class Fish {
     return this.#fishHeight;
   }
 
-  set vel(newVel) {
-    this.#vel = newVel;
+  set pos(newPos) {
+    this.#pos = new Vector(newPos.x, newPos.y); // Sikrer type
   }
 
-  set pos(newPos) {
-    this.#pos = newPos;
+  set vel(newVel) {
+    this.#vel = new Vector(newVel.x, newVel.y); // Sikrer type
   }
 
   show() {
@@ -88,7 +87,6 @@ class Fish {
     circle(this.#pos.x + this.#fishWidth / 4, this.#pos.y - this.#fishHeight / 4, 3);
   }
 }
-
 
 class PreyFish extends Fish {
   constructor() {
